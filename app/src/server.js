@@ -19,19 +19,13 @@ io.on("connection", (socket) => {
 
     // chào
     // gửi cho client vừa kết nối vào
-    socket.emit(
-      "send message from server to client",
-      createMessages(`Chào Mừng Bạn Đến Với Phòng ${room}`, "Admin")
-    );
+    socket.emit("send message from server to client", createMessages(`Chào Mừng Bạn Đến Với Phòng ${room}`, "Admin"));
     // gửi cho các client còn lại
     socket.broadcast
       .to(room)
       .emit(
         "send message from server to client",
-        createMessages(
-          `client ${username} Mới Vừa Tham Gia Vào Phòng ${room}`,
-          "Admin"
-        )
+        createMessages(`client ${username} Mới Vừa Tham Gia Vào Phòng ${room}`, "Admin")
       );
 
     // chat
@@ -44,26 +38,17 @@ io.on("connection", (socket) => {
       const id = socket.id;
       const user = findUser(id);
 
-      io.to(room).emit(
-        "send message from server to client",
-        createMessages(messageText, user.username)
-      );
+      io.to(room).emit("send message from server to client", createMessages(messageText, user.username));
       callback();
     });
 
     // xử lý chia sẽ vị trí
-    socket.on(
-      "share location from client to server",
-      ({ latitude, longitude }) => {
-        const linkLocation = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        const id = socket.id;
-        const user = findUser(id);
-        io.to(room).emit(
-          "share location from server to client",
-          createMessages(linkLocation, user.username)
-        );
-      }
-    );
+    socket.on("share location from client to server", ({ latitude, longitude }) => {
+      const linkLocation = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      const id = socket.id;
+      const user = findUser(id);
+      io.to(room).emit("share location from server to client", createMessages(linkLocation, user.username));
+    });
 
     // xử lý userlist
     const newUser = {
@@ -77,16 +62,13 @@ io.on("connection", (socket) => {
     // ngắt kết nối
     socket.on("disconnect", () => {
       removeUser(socket.id);
-      io.to(room).emit(
-        "send user list from server to lient",
-        getUserList(room)
-      );
+      io.to(room).emit("send user list from server to lient", getUserList(room));
       console.log("client left server");
     });
   });
 });
 
-const port = 4567;
+const port = process.env.PORT || 3456;
 server.listen(port, () => {
   console.log(`app run on http://localhost:${port}`);
 });
